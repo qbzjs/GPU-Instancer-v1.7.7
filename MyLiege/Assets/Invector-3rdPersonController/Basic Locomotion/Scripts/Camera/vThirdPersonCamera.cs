@@ -724,8 +724,12 @@ namespace Invector.vCamera
                 // fixed rotation
                 var _x = lerpState.fixedAngle.x;
                 var _y = lerpState.fixedAngle.y;
+                
                 mouseX = useSmooth ? Mathf.LerpAngle(mouseX, _x, smoothBetweenState * Time.fixedDeltaTime) : _x;
                 mouseY = useSmooth ? Mathf.LerpAngle(mouseY, _y, smoothBetweenState * Time.fixedDeltaTime) : _y;
+                
+                
+                
             }
 
         }
@@ -790,8 +794,9 @@ namespace Invector.vCamera
             }
 
             transformWeight = Mathf.Clamp(transformWeight += Time.fixedDeltaTime * startSmoothFactor, 0f, 1f);
-            if (useSmooth)
+            if (useSmooth) 
             {
+                Debug.Log("i am currently being slerped.");
                 currentState.Slerp(lerpState, smoothBetweenState * Time.fixedDeltaTime);
             }
             else

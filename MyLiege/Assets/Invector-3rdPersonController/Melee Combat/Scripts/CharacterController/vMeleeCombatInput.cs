@@ -12,7 +12,10 @@ namespace Invector.vCharacterController
     {
         #region Variables
 
-        [vEditorToolbar("Inputs")]
+        [vEditorToolbar("Inputs")] 
+        [Header("General Inputs")]
+        public GenericInput ChangeCharactersCameraViewInput = new GenericInput("Mouse1", "LT","LT");
+        
         [Header("Melee Inputs")]
         public GenericInput weakAttackInput = new GenericInput("Mouse0", "RB", "RB");
         public GenericInput strongAttackInput = new GenericInput("Alpha1", false, "RT", true, "RT", false);
@@ -24,6 +27,7 @@ namespace Invector.vCharacterController
         public virtual bool isBlocking { get; protected set; }
         public virtual bool isArmed { get { return meleeManager != null && (meleeManager.rightWeapon != null || (meleeManager.leftWeapon != null && meleeManager.leftWeapon.meleeType != vMeleeType.OnlyDefense)); } }
         public virtual bool isEquipping { get; protected set; }
+        public virtual bool isFirstPerson { get; protected set; } = true;
 
         [HideInInspector]
         public bool lockMeleeInput;
@@ -79,7 +83,10 @@ namespace Invector.vCharacterController
             }
 
             base.InputHandle();
-
+            
+            //Handle the input for change camera.
+            ChangeCameraViewInput();
+            
             if (MeleeAttackConditions() && !lockMeleeInput)
             {
                 MeleeWeakAttackInput();
@@ -150,6 +157,50 @@ namespace Invector.vCharacterController
             }
 
             isBlocking = blockInput.GetButton() && cc.currentStamina > 0 && !cc.customAction && !isAttacking;
+        }
+
+        /// <summary>
+        /// Change Camera View Input - this checks to see if the conditions for the input are true before actually triggering the change.
+        /// </summary>
+        public virtual void ChangeCameraViewInput()
+        {
+            if (animator == null)
+            {
+                return;
+            }
+
+            if (tpCamera.currentState != tpCamera.lerpState)
+            {
+                Debug.Log("finished the smooth between states. allowing to switch");
+            }else if (tpCamera.currentState == tpCamera.currentState)
+            {
+            }
+            
+            if (ChangeCharactersCameraViewInput.GetButtonDown())
+            {
+                TriggersCharactersCameraViewChange();
+            }
+            
+            
+        }
+
+        //Change the camera state from the camera managers to use the different camera, if the camera is already in top down, swap back to the normal fps cam.
+        public virtual void TriggersCharactersCameraViewChange()
+        {
+            if (isFirstPerson)
+            {
+                Camera camera = GameObject.FindWithTag("MainCamera").GetComponent<Camera>();
+                isFirstPerson = false;
+                Debug.Log("Changing the camera to top down");
+                ChangeCameraState("Soldier_TopDown", false);
+                
+            }
+            else
+            {
+                Debug.Log("changing the camera to first person");
+                ChangeCameraState("Soldier_FirstPerson", false);
+                isFirstPerson = true;
+            }
         }
 
         /// <summary>
