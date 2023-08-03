@@ -5,10 +5,14 @@ using UnityEngine;
 
 public class Player_BuildingController : MonoBehaviour
 {
-    //todo: add in a empty plot check to be able to see if we have any certain constraints for that plot, like its a "defense" only plot meaning only defence buildings can be bought there.
-
     public GoldAccount player_BankAccount;
 
+    public List<Plot> OccupiedPlots = new List<Plot>();
+    public List<Plot> UnoccupiedPlots = new List<Plot>();
+    
+    public List<Building> CurrentBuildingsPlaced = new List<Building>();
+
+    [Header("Buildings Available To Build")]
     public List<GameObject> Cavlary_Buildings_AvailableToBuild = new List<GameObject>();
     public List<GameObject> Infantry_Buildings_AvailableToBuild = new List<GameObject>();
     public List<GameObject> Defence_Buildings_AvailableToBuild = new List<GameObject>();
@@ -16,20 +20,24 @@ public class Player_BuildingController : MonoBehaviour
     public List<GameObject> Ranged_Buildings_AvailableToBuild = new List<GameObject>();
     public List<GameObject> SiegeVehicles_Buildings_AvailableToBuild = new List<GameObject>();
     public List<GameObject> Legendary_Buildings_AvailableToBuild = new List<GameObject>();
-    
-    //all the buildings currently on the map.    
-    public List<GameObject> Buildings_CurrentlyOnMap = new List<GameObject>();
-    
-    
-    public void BuildBuilding(int buildingToBuild)
+
+
+    public GameObject UI_Content_ButtonHolder;
+
+    //This will be called by generic action when we interact with a empty plot.
+    public void InteractedWithEmptyPlot(GameObject interactedWith)
     {
+        Debug.Log("i have interacted with this ");
+        Debug.Log("the object you interacted with: " + interactedWith.gameObject.name);
     }
 
-    //This checks the building and compares what the type is.
-    public void CheckBuildingType()
+    //This is called by generic action when we interact with a building that currently exists on a plot
+    public void InteractedWithBuilding(GameObject interactedWith)
     {
+        Debug.Log("i have interacted with this ");
+        Debug.Log("the object you interacted with: " + interactedWith.gameObject.name);
     }
-
+    
 
     // Start is called before the first frame update
     void Start()

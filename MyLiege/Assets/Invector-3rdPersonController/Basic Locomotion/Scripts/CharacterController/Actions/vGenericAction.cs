@@ -605,6 +605,7 @@ namespace Invector.vCharacterController.vActions
             {
                 if (triggerAction.actionInput.GetButtonDown())
                 {
+                    Debug.Log("i am in this stupid place.");
                     TriggerActionEvents();
                     TriggerAnimation();
                 }

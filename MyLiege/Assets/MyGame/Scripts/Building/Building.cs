@@ -10,9 +10,12 @@ public abstract class Building : MonoBehaviour
     public MyLiege_Building_Types.BuildingType currentBuildingType = MyLiege_Building_Types.BuildingType.INFANTRY;
 
     //Variables
-    [Header("Building General Settings")] public float CostOfBuilding = 250f;
+    [Header("Building General Settings")] public string BuildingName = "DefaultBuildingName";
+    public float CostOfBuilding = 250f;
     public float BuildingHealth = 200f;
     public float BuildingMaintenanceCost = 35f;
+
+    public Sprite BuildingSpriteForMenus;
 
     public bool IsCurrentlyUnderConstruction = false;
     public GameObject FullyBuiltModel;
