@@ -9,14 +9,7 @@ public class BuildingUIInformation : MonoBehaviour
     public TextMeshProUGUI EditMode_Status_Text;
     public TextMeshProUGUI CurrentSelectedBuilding_Text;
     public TextMeshProUGUI CurrentBuildingToPlace_Text;
-    public TextMeshProUGUI BuildingError_Text;
 
-
-    public void ChangeBuidingError(string newVal)
-    {
-        BuildingError_Text.text = newVal;
-    }
-    
     public void ChangeBuildModeStatus(string newVal)
     {
         BuildMode_Status_Text.text = newVal;
@@ -25,7 +18,6 @@ public class BuildingUIInformation : MonoBehaviour
     public void ChangeEditModeStatus(string newVal)
     {
         EditMode_Status_Text.text = newVal;
-        
     }
 
     public void ChangeCurrentSelectedBuilding(string newVal)

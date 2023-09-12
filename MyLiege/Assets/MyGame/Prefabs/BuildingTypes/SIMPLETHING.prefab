@@ -45,6 +45,8 @@ GameObject:
   - component: {fileID: 1350463388202255520}
   - component: {fileID: 999239065899710060}
   - component: {fileID: -742448410508497772}
+  - component: {fileID: 8802368859396780593}
+  - component: {fileID: -3245554008832035112}
   m_Layer: 20
   m_Name: SIMPLETHING
   m_TagString: Untagged
@@ -96,7 +98,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: f3f28af24ad36964b8483034a0fdc48e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -334,3 +336,49 @@ MonoBehaviour:
   singleSelection: 0
   toggle: 0
   keepSelection: 1
+--- !u!114 &8802368859396780593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3111274107344059069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f84a626c33f6fa4abbd1e5af41acab0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BuildingName: Default Name
+  BuildingDescription: This is a default description....Fill it in.
+  currBuildingsType: 0
+  CostOfBuilding: 150
+  BuildingConstructionProgress: 0
+  BuildingConstruction_PointsNeeded: 0
+  Building_Before_Finish: {fileID: 0}
+  Building_After_Finish: {fileID: 0}
+  BuildingLevel: 1
+  BuildingCurrHealth: 100
+  BuildingsMaxHealth: 100
+--- !u!114 &-3245554008832035112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3111274107344059069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f84a626c33f6fa4abbd1e5af41acab0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BuildingName: Green Breeze
+  BuildingDescription: This is a default description....Fill it in.
+  currBuildingsType: 0
+  CostOfBuilding: 150
+  BuildingConstructionProgress: 0
+  BuildingConstruction_PointsNeeded: 0
+  Building_Before_Finish: {fileID: 0}
+  Building_After_Finish: {fileID: 0}
+  BuildingLevel: 1
+  BuildingCurrHealth: 100
+  BuildingsMaxHealth: 100

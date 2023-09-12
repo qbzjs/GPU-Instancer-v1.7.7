@@ -28,7 +28,6 @@ public class Character_BuildingController : MonoBehaviour
     private GameObject CurrentBuildingToPlace;
 
     [SerializeField] public GameObject CurrentBuildingSelected;
-    [SerializeField] private GameObject CurrBuildingToBuildPreview;
 
     [Header("Building Important Layers")] [SerializeField]
     private LayerMask ValidBuildingLayers;
@@ -41,9 +40,9 @@ public class Character_BuildingController : MonoBehaviour
 
     [SerializeField] private float MaxDistanceCheck = 15f;
     [SerializeField] public BuildingUIInformation _buildingUIInformation;
-    
-    
-    
+    [SerializeField] public int CurrentBuildingListIndex = 0;
+    [SerializeField] public BuildingGameManager BGM;
+
     [Header("Rotation Settings")] [SerializeField]
     private float RotationSpeed = 50f;
 
@@ -188,13 +187,13 @@ public class Character_BuildingController : MonoBehaviour
                 Debug.Log("Building Successfully Selected");
                 CurrentBuildingSelected = hit.collider.GetComponent<Collider>().gameObject;
                 SelectedCurrObjectYRotation = CurrentBuildingSelected.transform.rotation.y;
-                _buildingUIInformation.ChangeCurrentSelectedBuilding("Current Selected Building: " + CurrentBuildingSelected.gameObject.name);
+                _buildingUIInformation.ChangeCurrentSelectedBuilding("Current Selected Building: " +
+                                                                     CurrentBuildingSelected.gameObject.name);
             }
             else
             {
                 CurrentBuildingSelected = null;
                 _buildingUIInformation.ChangeCurrentSelectedBuilding("Current Selected Building: Nothing");
-
             }
         }
         else
@@ -235,15 +234,11 @@ public class Character_BuildingController : MonoBehaviour
             else
             {
                 AllowNewPosition = false;
-                _buildingUIInformation.ChangeBuidingError("ERROR: THIS IS NOT A VALID NEW PLACEMENT LOCATION");
-
             }
         }
         else
         {
             Debug.Log("i am hitting literally nothing of interest.");
-            _buildingUIInformation.ChangeBuidingError("ERROR: HITTING NOTHING OF INTEREST OR VALUE!");
-
         }
     }
 
@@ -259,7 +254,7 @@ public class Character_BuildingController : MonoBehaviour
 
             Vector3 spawnedPoint = hit.point + new Vector3(0f,
                 -CurrentBuildingToPlace.GetComponentInChildren<Transform>().Find("Groundingpoint").localPosition.y, 0f);
-            
+
             PreviewBuildingPoint.transform.position = spawnedPoint;
 
             PreviewBuildingPoint.GetComponent<MeshFilter>().mesh =
@@ -299,24 +294,20 @@ public class Character_BuildingController : MonoBehaviour
             if ((ValidBuildingLayers & (1 << hit.collider.gameObject.layer)) != 0)
             {
                 Vector3 spawnedPoint = hit.point + new Vector3(0f,
-                    -CurrentBuildingToPlace.GetComponentInChildren<Transform>().Find("Groundingpoint").localPosition.y, 0f);
+                    -CurrentBuildingToPlace.GetComponentInChildren<Transform>().Find("Groundingpoint").localPosition.y,
+                    0f);
                 GameObject newPlacedBuilding =
                     Instantiate(CurrentBuildingToPlace, spawnedPoint, Quaternion.Euler(0f, CurrRotation, 0f));
                 Debug.Log("Placing down building");
-                _buildingUIInformation.ChangeBuidingError("SUCCESSFULLY PLACED DOWN BUILDING!");
-
             }
             else
             {
                 Debug.Log("This is not a valid layer for placement.");
-                _buildingUIInformation.ChangeBuidingError("ERROR: THIS IS NOT A VALID PLACEMENT SPOT!");
             }
         }
         else
         {
             Debug.Log("Outside of range or no object hit");
-            _buildingUIInformation.ChangeBuidingError("ERROR: OUTSIDE OF RANGE OR NO OBJECT HIT");
-
         }
     }
 
@@ -331,9 +322,34 @@ public class Character_BuildingController : MonoBehaviour
         SetAllowedNewPosition(false);
         Destroy(CurrentBuildingSelected);
         Debug.Log("Currently Destroying the selected Building");
-        _buildingUIInformation.ChangeBuidingError("SUCCESSFULLY DESTROYED BUILDING!");
-
     }
+
+    public void ChangeToNextBuildingInList()
+    {
+        if ((CurrentBuildingListIndex + 1) > BGM.BuildingsAvailableToBuild.Count - 1)
+        {
+            CurrentBuildingListIndex = 0;
+            CurrentBuildingToPlace = BGM.BuildingsAvailableToBuild[CurrentBuildingListIndex];
+        }
+        else
+        {
+            CurrentBuildingToPlace = BGM.BuildingsAvailableToBuild[++CurrentBuildingListIndex];
+        }
+    }
+
+    public void ChangeToPreviousBuildingInList()
+    {
+        if ((CurrentBuildingListIndex - 1) < 0)
+        {
+            CurrentBuildingListIndex = BGM.BuildingsAvailableToBuild.Count - 1;
+            CurrentBuildingToPlace = BGM.BuildingsAvailableToBuild[CurrentBuildingListIndex];
+        }
+        else
+        {
+            CurrentBuildingToPlace = BGM.BuildingsAvailableToBuild[--CurrentBuildingListIndex];
+        }
+    }
+
 
     //Check to be sure we have enough coins to place this current building, also check to make sure we dont have overlapping buildings before we place.
     public void CheckIfValidConditions()

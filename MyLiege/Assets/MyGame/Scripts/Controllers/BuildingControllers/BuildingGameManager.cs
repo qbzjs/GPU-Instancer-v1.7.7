@@ -5,15 +5,17 @@ using UnityEngine;
 public class BuildingGameManager : MonoBehaviour
 {
     [SerializeField]
-    private List<Building> BuildingsInWorld = new List<Building>();
+    public List<GameObject> BuildingsInWorld = new List<GameObject>();
     
     [SerializeField]
-    private List<Building> BuildingsAvailableToBuild = new List<Building>();
-    
-    
-    
-    
-    
+    public List<GameObject> BuildingsAvailableToBuild = new List<GameObject>();
+
+
+    //Add to the buildings in world list to check what exists.
+    public void AddToBuildingInWorld()
+    {
+        
+    }
     
     // Start is called before the first frame update
     void Start()
