@@ -40,7 +40,10 @@ public class Character_BuildingController : MonoBehaviour
     private Vector3 BuildingRayCenterOffset;
 
     [SerializeField] private float MaxDistanceCheck = 15f;
-
+    [SerializeField] public BuildingUIInformation _buildingUIInformation;
+    
+    
+    
     [Header("Rotation Settings")] [SerializeField]
     private float RotationSpeed = 50f;
 
@@ -185,15 +188,20 @@ public class Character_BuildingController : MonoBehaviour
                 Debug.Log("Building Successfully Selected");
                 CurrentBuildingSelected = hit.collider.GetComponent<Collider>().gameObject;
                 SelectedCurrObjectYRotation = CurrentBuildingSelected.transform.rotation.y;
+                _buildingUIInformation.ChangeCurrentSelectedBuilding("Current Selected Building: " + CurrentBuildingSelected.gameObject.name);
             }
             else
             {
                 CurrentBuildingSelected = null;
+                _buildingUIInformation.ChangeCurrentSelectedBuilding("Current Selected Building: Nothing");
+
             }
         }
         else
         {
             Debug.Log("Building is either to far away or no building in sight.");
+            _buildingUIInformation.ChangeCurrentSelectedBuilding("Current Selected Building: Nothing");
+
             CurrentBuildingSelected = null;
         }
     }
@@ -227,11 +235,15 @@ public class Character_BuildingController : MonoBehaviour
             else
             {
                 AllowNewPosition = false;
+                _buildingUIInformation.ChangeBuidingError("ERROR: THIS IS NOT A VALID NEW PLACEMENT LOCATION");
+
             }
         }
         else
         {
             Debug.Log("i am hitting literally nothing of interest.");
+            _buildingUIInformation.ChangeBuidingError("ERROR: HITTING NOTHING OF INTEREST OR VALUE!");
+
         }
     }
 
@@ -291,15 +303,20 @@ public class Character_BuildingController : MonoBehaviour
                 GameObject newPlacedBuilding =
                     Instantiate(CurrentBuildingToPlace, spawnedPoint, Quaternion.Euler(0f, CurrRotation, 0f));
                 Debug.Log("Placing down building");
+                _buildingUIInformation.ChangeBuidingError("SUCCESSFULLY PLACED DOWN BUILDING!");
+
             }
             else
             {
                 Debug.Log("This is not a valid layer for placement.");
+                _buildingUIInformation.ChangeBuidingError("ERROR: THIS IS NOT A VALID PLACEMENT SPOT!");
             }
         }
         else
         {
             Debug.Log("Outside of range or no object hit");
+            _buildingUIInformation.ChangeBuidingError("ERROR: OUTSIDE OF RANGE OR NO OBJECT HIT");
+
         }
     }
 
@@ -314,6 +331,8 @@ public class Character_BuildingController : MonoBehaviour
         SetAllowedNewPosition(false);
         Destroy(CurrentBuildingSelected);
         Debug.Log("Currently Destroying the selected Building");
+        _buildingUIInformation.ChangeBuidingError("SUCCESSFULLY DESTROYED BUILDING!");
+
     }
 
     //Check to be sure we have enough coins to place this current building, also check to make sure we dont have overlapping buildings before we place.

@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &1
 MonoBehaviour:
-  m_ObjectHideFlags: 61
+  m_ObjectHideFlags: 52
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -16,8 +16,10 @@ MonoBehaviour:
   _parent: {fileID: 0}
   _parentID:
     _serializedGuid: 
-  _subcollections: []
-  _subcollectionIDs: []
+  _subcollections:
+  - {fileID: 0}
+  _subcollectionIDs:
+  - _serializedGuid: 344eb5ce2c512045b6cb3c80e6169c64
   _collectionName: ROOT
   _id:
     _serializedGuid: 49864eafc369bb47ad43254588581e0f

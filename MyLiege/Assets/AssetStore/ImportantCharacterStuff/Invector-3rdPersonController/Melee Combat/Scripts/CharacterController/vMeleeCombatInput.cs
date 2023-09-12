@@ -197,6 +197,8 @@ namespace Invector.vCharacterController
                 CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Moving");
                 CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = false;
                 Debug.Log("moving this building, and reset the layer to moving");
+                CBC._buildingUIInformation.ChangeEditModeStatus("Edit Mode: Currently Moving Building");
+
             }
             else if (MoveBuilding.GetButtonDown() && CBC.GetCurrentlyMoving() && CBC.GetAllowedNewPosition())
             {
@@ -205,6 +207,7 @@ namespace Invector.vCharacterController
                 CBC.SetAllowedNewPosition(false);
                 CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
                 CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
+                CBC._buildingUIInformation.ChangeEditModeStatus("Edit Mode: Active");
             }
             else if (MoveBuilding.GetButtonDown() && CBC.GetCurrentlyMoving() && !CBC.GetAllowedNewPosition())
             {
@@ -214,7 +217,6 @@ namespace Invector.vCharacterController
 
         public void DeleteBuildingInput()
         {
-            Debug.Log("Hello, its me, i was wondering what the fuck is happpeningg");
             if (RemoveBuilding.GetButtonDown() && CBC.CurrentBuildingSelected != null && !CBC.GetCurrentlyMoving())
             {
                 CBC.DeleteBuilding();
@@ -240,6 +242,7 @@ namespace Invector.vCharacterController
                     CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
                     CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
                 }
+                CBC._buildingUIInformation.ChangeEditModeStatus("Edit Mode: Active");
             }
             else if (EditModeToggle.GetButtonDown() && CBC.GetEditMode())
             {
@@ -255,6 +258,8 @@ namespace Invector.vCharacterController
                         CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
                         CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
                     }
+                    CBC._buildingUIInformation.ChangeEditModeStatus("Edit Mode: Inactive");
+
                 }
                 else if (CBC.GetEditMode() && !CBC.GetCurrentlyMoving() && !CBC.GetAllowedNewPosition())
                 {
@@ -268,6 +273,7 @@ namespace Invector.vCharacterController
                         CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
                         CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
                     }
+                    CBC._buildingUIInformation.ChangeEditModeStatus("Edit Mode: Inactive");
                 }
             }
         }
@@ -286,6 +292,8 @@ namespace Invector.vCharacterController
                     CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
                     CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
                 }
+                CBC._buildingUIInformation.ChangeBuildModeStatus("Build Mode: Active");
+
             }
             else if (BuildModeToggle.GetButtonDown() && CBC.GetBuildMode())
             {
@@ -304,6 +312,8 @@ namespace Invector.vCharacterController
                         CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
                         CBC.CurrentBuildingSelected = null;
                     }
+                    CBC._buildingUIInformation.ChangeBuildModeStatus("Build Mode: Inactive");
+
                 }
                 else if (!CBC.GetEditMode() && !CBC.GetCurrentlyMoving() && !CBC.GetAllowedNewPosition())
                 {
@@ -320,6 +330,8 @@ namespace Invector.vCharacterController
                         CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
                         CBC.CurrentBuildingSelected = null;
                     }
+                    CBC._buildingUIInformation.ChangeBuildModeStatus("Build Mode: Inactive");
+
                 } else if (CBC.GetEditMode() && !CBC.GetCurrentlyMoving() && !CBC.GetAllowedNewPosition())
                 {
                     Debug.Log("Disabling Build Mode");
@@ -335,6 +347,7 @@ namespace Invector.vCharacterController
                         CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
                         CBC.CurrentBuildingSelected = null;
                     }
+                    CBC._buildingUIInformation.ChangeBuildModeStatus("Build Mode: Inactive");
                 }
             }
         }

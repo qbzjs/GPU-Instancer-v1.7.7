@@ -206,8 +206,13 @@ namespace Bewildered.SmartLibrary.UI
             _listView.style.flexGrow = 1;
             hierarchy.Add(_listView);
             
+#if UNITY_2022_3_OR_NEWER
+            _listView.selectionChanged += HandleOnSelectionChange;
+            _listView.itemsChosen += HandleItemChosen;
+#else
             _listView.onSelectionChange += HandleOnSelectionChange;
             _listView.onItemsChosen += HandleItemChosen;
+#endif
             _listView.Q<ScrollView>().contentContainer.RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
 
