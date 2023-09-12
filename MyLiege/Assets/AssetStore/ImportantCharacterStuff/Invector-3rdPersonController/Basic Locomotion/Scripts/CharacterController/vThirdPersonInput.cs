@@ -8,22 +8,27 @@ namespace Invector.vCharacterController
     public class vThirdPersonInput : vMonoBehaviour, vIAnimatorMoveReceiver
     {
         public delegate void OnUpdateEvent();
+
         public event OnUpdateEvent onUpdate;
         public event OnUpdateEvent onLateUpdate;
         public event OnUpdateEvent onFixedUpdate;
         public event OnUpdateEvent onAnimatorMove;
 
-        #region Variables        
+        #region Variables
 
         [vEditorToolbar("Inputs")]
-        [vHelpBox("Check these options if you need to use the mouse cursor, ex: <b>2.5D, Topdown or Mobile</b>", vHelpBoxAttribute.MessageType.Info)]
+        [vHelpBox("Check these options if you need to use the mouse cursor, ex: <b>2.5D, Topdown or Mobile</b>",
+            vHelpBoxAttribute.MessageType.Info)]
         public bool unlockCursorOnStart = false;
+
         public bool showCursorOnStart = false;
+
         [vHelpBox("PC only - use it to toggle between run/walk", vHelpBoxAttribute.MessageType.Info)]
         public KeyCode toggleWalk = KeyCode.CapsLock;
 
         [Header("Movement Input")]
         public GenericInput horizontalInput = new GenericInput("Horizontal", "LeftAnalogHorizontal", "Horizontal");
+
         public GenericInput verticalInput = new GenericInput("Vertical", "LeftAnalogVertical", "Vertical");
         public GenericInput sprintInput = new GenericInput("LeftShift", "LeftStickClick", "LeftStickClick");
         public GenericInput crouchInput = new GenericInput("C", "Y", "Y");
@@ -32,47 +37,54 @@ namespace Invector.vCharacterController
         public GenericInput rollInput = new GenericInput("Q", "B", "B");
 
         protected bool _lockInput = false;
-        [HideInInspector] public virtual bool lockInput { get { return _lockInput; } set { _lockInput = value; } }
 
-        [vEditorToolbar("Camera Settings")]
-        public bool lockCameraInput;
+        [HideInInspector]
+        public virtual bool lockInput
+        {
+            get { return _lockInput; }
+            set { _lockInput = value; }
+        }
+
+        [vEditorToolbar("Camera Settings")] public bool lockCameraInput;
         public bool invertCameraInputVertical, invertCameraInputHorizontal;
-        [vEditorToolbar("Inputs")]
-        [Header("Camera Input")]
+
+        [vEditorToolbar("Inputs")] [Header("Camera Input")]
         public GenericInput rotateCameraXInput = new GenericInput("Mouse X", "RightAnalogHorizontal", "Mouse X");
+
         public GenericInput rotateCameraYInput = new GenericInput("Mouse Y", "RightAnalogVertical", "Mouse Y");
         public GenericInput cameraZoomInput = new GenericInput("Mouse ScrollWheel", "", "");
 
-        [vEditorToolbar("Events")]
-        public UnityEvent OnLockCamera;
+        [vEditorToolbar("Events")] public UnityEvent OnLockCamera;
         public UnityEvent OnUnlockCamera;
         public UnityEvent onEnableAnimatorMove = new UnityEvent();
         public UnityEvent onDisableDisableAnimatorMove = new UnityEvent();
 
+        [HideInInspector] public vCamera.vThirdPersonCamera tpCamera; // access tpCamera info
+        [HideInInspector] public bool ignoreTpCamera; // controls whether update the cameraStates of not                
+        [HideInInspector] public string customCameraState; // generic string to change the CameraState
+
         [HideInInspector]
-        public vCamera.vThirdPersonCamera tpCamera;         // access tpCamera info
+        public string customlookAtPoint; // generic string to change the CameraPoint of the Fixed Point Mode
+
+        [HideInInspector] public bool changeCameraState; // generic bool to change the CameraState
+
         [HideInInspector]
-        public bool ignoreTpCamera;                         // controls whether update the cameraStates of not                
-        [HideInInspector]
-        public string customCameraState;                    // generic string to change the CameraState
-        [HideInInspector]
-        public string customlookAtPoint;                    // generic string to change the CameraPoint of the Fixed Point Mode
-        [HideInInspector]
-        public bool changeCameraState;                      // generic bool to change the CameraState
-        [HideInInspector]
-        public bool smoothCameraState;                      // generic bool to know if the state will change with or without lerp
-        [HideInInspector]
-        public vThirdPersonController cc;                   // access the ThirdPersonController component
-        [HideInInspector]
-        public vHUDController hud;                          // access vHUDController component
+        public bool smoothCameraState; // generic bool to know if the state will change with or without lerp
+
+        [HideInInspector] public vThirdPersonController cc; // access the ThirdPersonController component
+        [HideInInspector] public vHUDController hud; // access vHUDController component
         protected bool updateIK = false;
         protected bool isInit;
         [HideInInspector] public bool lockMoveInput;
-        protected InputDevice inputDevice { get { return vInput.instance.inputDevice; } }
+
+        protected InputDevice inputDevice
+        {
+            get { return vInput.instance.inputDevice; }
+        }
 
         protected Camera _cameraMain;
         protected bool withoutMainCamera;
-        public virtual bool lockUpdateMoveDirection { get; set; }                // lock the method UpdateMoveDirection
+        public virtual bool lockUpdateMoveDirection { get; set; } // lock the method UpdateMoveDirection
 
         public virtual Camera cameraMain
         {
@@ -91,12 +103,10 @@ namespace Invector.vCharacterController
                         cc.rotateTarget = _cameraMain.transform;
                     }
                 }
+
                 return _cameraMain;
             }
-            set
-            {
-                _cameraMain = value;
-            }
+            set { _cameraMain = value; }
         }
 
         public Animator animator
@@ -130,7 +140,12 @@ namespace Invector.vCharacterController
                 cc.Init();
             }
 
-            cc.onDead.AddListener((GameObject _gameObject) => { cc.ResetInputAnimatorParameters(); SetLockAllInput(true); cc.StopCharacter(); });
+            cc.onDead.AddListener((GameObject _gameObject) =>
+            {
+                cc.ResetInputAnimatorParameters();
+                SetLockAllInput(true);
+                cc.StopCharacter();
+            });
             StartCoroutine(CharacterInit());
 
             ShowCursor(showCursorOnStart);
@@ -208,8 +223,8 @@ namespace Invector.vCharacterController
                 onLateUpdate.Invoke();
             }
 
-            CameraInput();                      // update camera input
-            UpdateCameraStates();               // update camera states                        
+            CameraInput(); // update camera input
+            UpdateCameraStates(); // update camera states                        
             updateIK = false;
         }
 
@@ -221,10 +236,10 @@ namespace Invector.vCharacterController
             }
 
             Physics.SyncTransforms();
-            cc.UpdateMotor();                                                   // handle the ThirdPersonMotor methods            
-            cc.ControlLocomotionType();                                         // handle the controller locomotion type and movespeed   
+            cc.UpdateMotor(); // handle the ThirdPersonMotor methods            
+            cc.ControlLocomotionType(); // handle the controller locomotion type and movespeed   
             ControlRotation();
-            cc.UpdateAnimator();                                                // handle the ThirdPersonAnimator methods
+            cc.UpdateAnimator(); // handle the ThirdPersonAnimator methods
             updateIK = true;
         }
 
@@ -240,8 +255,8 @@ namespace Invector.vCharacterController
                 onUpdate.Invoke();
             }
 
-            InputHandle();                      // update input methods                        
-            UpdateHUD();                        // update hud graphics            
+            InputHandle(); // update input methods                        
+            UpdateHUD(); // update hud graphics            
         }
 
         public virtual void OnAnimatorMoveEvent()
@@ -259,6 +274,7 @@ namespace Invector.vCharacterController
         }
 
         #region Generic Methods
+
         // you can call this methods anywhere in the inspector or third party assets to have better control of the controller or cutscenes
 
         /// <summary>
@@ -383,13 +399,9 @@ namespace Invector.vCharacterController
         /// </summary>
         public virtual bool UseAnimatorMove
         {
-            get
-            {
-                return _useAnimatorMove;
-            }
+            get { return _useAnimatorMove; }
             set
             {
-
                 if (_useAnimatorMove != value)
                 {
                     if (value)
@@ -407,6 +419,7 @@ namespace Invector.vCharacterController
                         onEnableAnimatorMove?.Invoke();
                     }
                 }
+
                 _useAnimatorMove = value;
             }
         }
@@ -446,6 +459,8 @@ namespace Invector.vCharacterController
             RollInput();
         }
 
+   
+
         public virtual void MoveInput()
         {
             if (!lockMoveInput)
@@ -465,7 +480,9 @@ namespace Invector.vCharacterController
             cc.ControlKeepDirection();
         }
 
-        public virtual bool rotateToLockTargetConditions => tpCamera && tpCamera.lockTarget && cc.isStrafing && !cc.isRolling && !cc.isJumping && !cc.customAction;
+        public virtual bool rotateToLockTargetConditions => tpCamera && tpCamera.lockTarget && cc.isStrafing &&
+                                                            !cc.isRolling && !cc.isJumping && !cc.customAction;
+
         public virtual void ControlRotation()
         {
             if (cameraMain && !lockUpdateMoveDirection)
@@ -478,11 +495,11 @@ namespace Invector.vCharacterController
 
             if (rotateToLockTargetConditions)
             {
-                cc.RotateToPosition(tpCamera.lockTarget.position);          // rotate the character to a specific target
+                cc.RotateToPosition(tpCamera.lockTarget.position); // rotate the character to a specific target
             }
             else
             {
-                cc.ControlRotationType();                                   // handle the controller rotation type (strafe or free)
+                cc.ControlRotationType(); // handle the controller rotation type (strafe or free)
             }
         }
 
@@ -518,7 +535,9 @@ namespace Invector.vCharacterController
         /// <returns></returns>
         public virtual bool JumpConditions()
         {
-            return !cc.inJumpStarted && !cc.customAction && !cc.isCrouching && cc.isGrounded && cc.GroundAngle() < cc.slopeLimit && cc.currentStamina >= cc.jumpStamina && !cc.isJumping && !cc.isRolling;
+            return !cc.inJumpStarted && !cc.customAction && !cc.isCrouching && cc.isGrounded &&
+                   cc.GroundAngle() < cc.slopeLimit && cc.currentStamina >= cc.jumpStamina && !cc.isJumping &&
+                   !cc.isRolling;
         }
 
         /// <summary>
@@ -538,7 +557,8 @@ namespace Invector.vCharacterController
         /// <returns></returns>
         public virtual bool RollConditions()
         {
-            return (!cc.isRolling || cc.canRollAgain) && cc.isGrounded && cc.input != Vector3.zero && !cc.customAction && cc.currentStamina > cc.rollStamina && !cc.isJumping && !cc.isSliding;
+            return (!cc.isRolling || cc.canRollAgain) && cc.isGrounded && cc.input != Vector3.zero &&
+                   !cc.customAction && cc.currentStamina > cc.rollStamina && !cc.isJumping && !cc.isSliding;
         }
 
         /// <summary>
@@ -552,7 +572,7 @@ namespace Invector.vCharacterController
             }
         }
 
-        #endregion       
+        #endregion
 
         #region Camera Methods
 
@@ -680,7 +700,7 @@ namespace Invector.vCharacterController
 
         #endregion
 
-        #region HUD       
+        #region HUD
 
         public virtual void UpdateHUD()
         {
@@ -712,6 +732,7 @@ namespace Invector.vCharacterController
         /// Check if Component is Enabled
         /// </summary>
         bool enabled { get; set; }
+
         /// <summary>
         /// Method Called from <seealso cref="vAnimatorMoveSender"/>
         /// </summary>

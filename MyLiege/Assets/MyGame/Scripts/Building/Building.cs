@@ -3,47 +3,59 @@ using System.Collections.Generic;
 using MyGame.Scripts.Building;
 using UnityEngine;
 
-public abstract class Building : MonoBehaviour
+public class Building : MonoBehaviour
 {
-    //TODO: AI NEEDS TO BE HELPING TO BUILD, OR THE PLAYER NEEDS TO BE BUILDING.
+    //The buildings name
+    [SerializeField]
+    private string BuildingName = "Default Name";
 
-    public MyLiege_Building_Types.BuildingType currentBuildingType = MyLiege_Building_Types.BuildingType.INFANTRY;
+    [SerializeField]
+    private string BuildingDescription = "This is a default description....Fill it in.";
+    
+    //This is the buildings current Type
+    [SerializeField]
+    private MyLiege_Building_Types.BuildingType currBuildingsType = MyLiege_Building_Types.BuildingType.INFANTRY;
+    
+    //The cost to construct the building
+    [SerializeField]
+    private float CostOfBuilding = 150f;
 
-    //Variables
-    [Header("Building General Settings")] public string BuildingName = "DefaultBuildingName";
-    public float CostOfBuilding = 250f;
-    public float BuildingHealth = 200f;
-    public float BuildingMaintenanceCost = 35f;
+    //The progress of the current buildings construction 
+    [SerializeField]
+    private float BuildingConstructionProgress;
 
-    public Sprite BuildingSpriteForMenus;
+    //The progress needed for the building to be finished construction
+    [SerializeField]
+    private float BuildingConstruction_PointsNeeded;
 
-    public bool IsCurrentlyUnderConstruction = false;
-    public GameObject FullyBuiltModel;
+    [SerializeField]
+    private GameObject Building_Before_Finish;
+    [SerializeField]
+    private GameObject Building_After_Finish;
 
-    public List<ParticleSystem> DestroyedBuildingParticles;
-    public GameObject DestroyedBuildingModel;
-    public List<AudioClip> DestructionSoundClips;
+    //The current buildings level
+    [SerializeField]
+    private int BuildingLevel = 1;
 
-    [Header("Building Construction Settings")]
-    public float TimeToBuild = 5f;
+    //The current buildings health amount
+    [SerializeField]
+    private float BuildingCurrHealth = 100f;
+    [SerializeField]
+    private float BuildingsMaxHealth = 100f;
+    
+    
+    
+    
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
 
-    public List<GameObject> StagesOfBuildingProgress = new List<GameObject>();
-    public List<AudioClip> BuildingConstructionSoundEffect = new List<AudioClip>();
-    public List<GameObject> BuildingConstructionParticleSystem = new List<GameObject>();
-
-    //Eventually use this : 
-    public float buildingProgress = 0f;
-    public float NumberOfBuildersHelping = 0f;
-
-    [Header("Building Upgrade Settings")] public float BuildingLevel;
-    public List<GameObject> UpgradedBuildingModel = new List<GameObject>();
-
-    //Methods
-    public abstract void RepairBuilding();
-    public abstract void DamageBuilding();
-
-    public abstract void DestroyBuilding();
-
-    public abstract void MakeProgressTowardsConstruction();
-    public abstract void MakeProgressTowardsUpgradedBuilding();
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
 }

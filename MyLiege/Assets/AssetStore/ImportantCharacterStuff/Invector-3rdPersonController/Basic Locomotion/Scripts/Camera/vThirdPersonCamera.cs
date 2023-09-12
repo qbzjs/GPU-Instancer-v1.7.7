@@ -796,7 +796,6 @@ namespace Invector.vCamera
             transformWeight = Mathf.Clamp(transformWeight += Time.fixedDeltaTime * startSmoothFactor, 0f, 1f);
             if (useSmooth) 
             {
-                Debug.Log("i am currently being slerped.");
                 currentState.Slerp(lerpState, smoothBetweenState * Time.fixedDeltaTime);
             }
             else

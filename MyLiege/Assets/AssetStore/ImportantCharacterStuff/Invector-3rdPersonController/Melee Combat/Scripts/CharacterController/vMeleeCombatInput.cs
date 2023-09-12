@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Invector.vCharacterController
 {
@@ -12,25 +13,52 @@ namespace Invector.vCharacterController
     {
         #region Variables
 
-        [vEditorToolbar("Inputs")] 
-        [Header("General Inputs")]
-        public GenericInput ChangeCharactersCameraViewInput = new GenericInput("Mouse1", "LT","LT");
-        
-        [Header("Melee Inputs")]
-        public GenericInput weakAttackInput = new GenericInput("Mouse0", "RB", "RB");
+        //Reference to building controller
+        private Character_BuildingController CBC;
+
+
+        [vEditorToolbar("Inputs")] [Header("General Inputs")]
+        public GenericInput ChangeCharactersCameraViewInput = new GenericInput("Mouse1", "LT", "LT");
+
+        [Header("Building Inputs")] public GenericInput BuildModeToggle = new GenericInput("Q", "B", "B");
+        public GenericInput EditModeToggle = new GenericInput("Q", "B", "B");
+        public GenericInput RotateBuildingRight = new GenericInput("Q", "B", "B");
+        public GenericInput RotateBuildingLeft = new GenericInput("Q", "B", "B");
+        public GenericInput PlaceBuilding = new GenericInput("Q", "B", "B");
+        public GenericInput RemoveBuilding = new GenericInput("Q", "B", "B");
+        public GenericInput NextBuilding = new GenericInput("Q", "B", "B");
+        public GenericInput PreviousBuilding = new GenericInput("Q", "B", "B");
+
+        public GenericInput MoveBuilding = new GenericInput("Q", "B", "B");
+
+        [Header("Melee Inputs")] public GenericInput weakAttackInput = new GenericInput("Mouse0", "RB", "RB");
         public GenericInput strongAttackInput = new GenericInput("Alpha1", false, "RT", true, "RT", false);
         public GenericInput blockInput = new GenericInput("Mouse1", "LB", "LB");
 
         internal vMeleeManager meleeManager;
         protected virtual bool _isAttacking { get; set; }
-        public virtual bool isAttacking { get => _isAttacking || cc.IsAnimatorTag("Attack"); protected set { _isAttacking = value; } }
+
+        public virtual bool isAttacking
+        {
+            get => _isAttacking || cc.IsAnimatorTag("Attack");
+            protected set { _isAttacking = value; }
+        }
+
         public virtual bool isBlocking { get; protected set; }
-        public virtual bool isArmed { get { return meleeManager != null && (meleeManager.rightWeapon != null || (meleeManager.leftWeapon != null && meleeManager.leftWeapon.meleeType != vMeleeType.OnlyDefense)); } }
+
+        public virtual bool isArmed
+        {
+            get
+            {
+                return meleeManager != null && (meleeManager.rightWeapon != null || (meleeManager.leftWeapon != null &&
+                    meleeManager.leftWeapon.meleeType != vMeleeType.OnlyDefense));
+            }
+        }
+
         public virtual bool isEquipping { get; protected set; }
         public virtual bool isFirstPerson { get; protected set; } = true;
 
-        [HideInInspector]
-        public bool lockMeleeInput;
+        [HideInInspector] public bool lockMeleeInput;
 
         public void SetLockMeleeInput(bool value)
         {
@@ -53,14 +81,12 @@ namespace Invector.vCharacterController
 
         public virtual bool lockInventory
         {
-            get
-            {
-                return isAttacking || cc.isDead || cc.customAction || cc.isRolling;
-            }
+            get { return isAttacking || cc.isDead || cc.customAction || cc.isRolling; }
         }
 
         protected override void Start()
         {
+            CBC = gameObject.GetComponent<Character_BuildingController>();
             base.Start();
         }
 
@@ -83,11 +109,38 @@ namespace Invector.vCharacterController
             }
 
             base.InputHandle();
-            
+
             //Handle the input for change camera.
             ChangeCameraViewInput();
-            
-            if (MeleeAttackConditions() && !lockMeleeInput)
+
+            //Handle the building ui toggle
+            ToggleBuildModeInput();
+            ToggleEditModeInput();
+
+            PlaceBuildingInput();
+
+            if (CBC.GetBuildMode() && CBC.GetEditMode() && CBC.CurrentBuildingSelected != null &&
+                !CBC.GetCurrentlyMoving())
+            {
+                DeleteBuildingInput();
+            }
+
+            if (CBC.GetEditMode() && CBC.GetBuildMode() && CBC.CurrentBuildingSelected != null)
+            {
+                MoveBuildingInput();
+            }
+
+            if (!CBC.GetRotateModeLeft())
+            {
+                RotateBuildingRightInput();
+            }
+
+            if (!CBC.GetRotateModeRight())
+            {
+                RotateBuildingLeftInput();
+            }
+
+            if (MeleeAttackConditions() && !lockMeleeInput && !CBC.GetBuildMode())
             {
                 MeleeWeakAttackInput();
                 MeleeStrongAttackInput();
@@ -99,6 +152,142 @@ namespace Invector.vCharacterController
                 isBlocking = false;
             }
         }
+
+        public void RotateBuildingRightInput()
+        {
+            if (!CBC.GetBuildMode())
+            {
+                return;
+            }
+
+            if (RotateBuildingRight.GetButton() && CBC.GetBuildMode())
+            {
+                CBC.RotateBuilding(false);
+                CBC.SetRotationRight(true);
+            }
+            else
+            {
+                CBC.SetRotationRight(false);
+            }
+        }
+
+        public void RotateBuildingLeftInput()
+        {
+            if (!CBC.GetBuildMode())
+            {
+                return;
+            }
+
+            if (RotateBuildingLeft.GetButton() && CBC.GetBuildMode())
+            {
+                CBC.SetRotationLeft(true);
+                CBC.RotateBuilding(true);
+            }
+            else
+            {
+                CBC.SetRotationLeft(false);
+            }
+        }
+
+        private void MoveBuildingInput()
+        {
+            if (MoveBuilding.GetButtonDown() && !CBC.GetCurrentlyMoving())
+            {
+                CBC.SetCurrentlyMoving(true);
+                CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Moving");
+                CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = false;
+                Debug.Log("moving this building, and reset the layer to moving");
+            }
+            else if (MoveBuilding.GetButtonDown() && CBC.GetCurrentlyMoving() && CBC.GetAllowedNewPosition())
+            {
+                Debug.Log("Stopped moving this building, and reset the layer to building");
+                CBC.SetCurrentlyMoving(false);
+                CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
+            }
+            else if (MoveBuilding.GetButtonDown() && CBC.GetCurrentlyMoving() && !CBC.GetAllowedNewPosition())
+            {
+                Debug.Log("Sorry but that is not a valid location for the new position");
+            }
+        }
+
+        public void DeleteBuildingInput()
+        {
+            if (RemoveBuilding.GetButtonDown() && CBC.CurrentBuildingSelected != null && !CBC.GetCurrentlyMoving())
+            {
+                CBC.DeleteBuilding();
+            }
+        }
+
+        public void ToggleEditModeInput()
+        {
+            if (!CBC.GetBuildMode())
+            {
+                return;
+            }
+
+            if (EditModeToggle.GetButtonDown() && !CBC.GetEditMode())
+            {
+                Debug.Log("Enabling Edit Mode");
+                CBC.SetEditMode(true);
+                CBC.PreviewBuildingPoint.SetActive(false);
+                CBC.SetCurrentlyMoving(false);
+                CBC.SetAllowedNewPosition(false);
+            }
+            else if (EditModeToggle.GetButtonDown() && CBC.GetEditMode() && CBC.GetAllowedNewPosition())
+            {
+                Debug.Log("Disabling Edit Mode");
+                CBC.SetEditMode(false);
+                CBC.PreviewBuildingPoint.SetActive(true);
+                CBC.SetCurrentlyMoving(false);
+                CBC.SetAllowedNewPosition(false);
+            }
+        }
+
+        public void ToggleBuildModeInput()
+        {
+            if (BuildModeToggle.GetButtonDown() && !CBC.GetBuildMode())
+            {
+                Debug.Log("Enabling Build Mode");
+                CBC.SetBuildMode(true);
+                CBC.PreviewBuildingPoint.SetActive(true);
+
+                //if we forgot to switch the layer back this does it for us
+                if (CBC.CurrentBuildingSelected != null)
+                {
+                    CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                }
+            }
+            else if (BuildModeToggle.GetButtonDown() && CBC.GetBuildMode() && CBC.GetAllowedNewPosition())
+            {
+                Debug.Log("Disabling Build Mode");
+                CBC.SetBuildMode(false);
+                //We also want to reset edit mode when we are not in build mode anymore.
+                CBC.SetEditMode(false);
+                CBC.PreviewBuildingPoint.SetActive(false);
+                //if we forgot to switch the layer back this does it for us
+                if (CBC.CurrentBuildingSelected != null)
+                {
+                    CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                }
+            }
+        }
+
+        //when we enable the edit mode we need to disable the preview building point
+
+        public void PlaceBuildingInput()
+        {
+            if (!CBC.GetBuildMode())
+            {
+                return;
+            }
+
+            if ((CBC.GetBuildMode() && !CBC.GetEditMode()) && PlaceBuilding.GetButtonDown())
+            {
+                CBC.PlaceDownBuilding();
+            }
+        }
+
 
         #region MeleeCombat Input Methods
 
@@ -134,7 +323,9 @@ namespace Invector.vCharacterController
                 return;
             }
 
-            if (strongAttackInput.GetButtonDown() && (!meleeManager.CurrentActiveAttackWeapon || meleeManager.CurrentActiveAttackWeapon.useStrongAttack) && MeleeAttackStaminaConditions())
+            if (strongAttackInput.GetButtonDown() &&
+                (!meleeManager.CurrentActiveAttackWeapon || meleeManager.CurrentActiveAttackWeapon.useStrongAttack) &&
+                MeleeAttackStaminaConditions())
             {
                 TriggerStrongAttack();
             }
@@ -171,17 +362,15 @@ namespace Invector.vCharacterController
 
             if (tpCamera.currentState != tpCamera.lerpState)
             {
-                Debug.Log("finished the smooth between states. allowing to switch");
-            }else if (tpCamera.currentState == tpCamera.currentState)
+            }
+            else if (tpCamera.currentState == tpCamera.currentState)
             {
             }
-            
+
             if (ChangeCharactersCameraViewInput.GetButtonDown())
             {
                 TriggersCharactersCameraViewChange();
             }
-            
-            
         }
 
         //Change the camera state from the camera managers to use the different camera, if the camera is already in top down, swap back to the normal fps cam.
@@ -193,7 +382,6 @@ namespace Invector.vCharacterController
                 isFirstPerson = false;
                 Debug.Log("Changing the camera to top down");
                 ChangeCameraState("Soldier_TopDown", false);
-                
             }
             else
             {
@@ -232,23 +420,24 @@ namespace Invector.vCharacterController
                 meleeManager = GetComponent<vMeleeManager>();
             }
 
-            return meleeManager != null && cc.isGrounded && !cc.customAction && !cc.isJumping && !cc.isCrouching && !cc.isRolling && !isEquipping && !animator.IsInTransition(cc.baseLayer);
+            return meleeManager != null && cc.isGrounded && !cc.customAction && !cc.isJumping && !cc.isCrouching &&
+                   !cc.isRolling && !isEquipping && !animator.IsInTransition(cc.baseLayer);
         }
 
         public override bool JumpConditions()
         {
-
             return !isAttacking && base.JumpConditions();
         }
 
         public override bool RollConditions()
         {
-            return base.RollConditions() && !isAttacking && !animator.IsInTransition(cc.upperBodyLayer) && !animator.IsInTransition(cc.fullbodyLayer);
+            return base.RollConditions() && !isAttacking && !animator.IsInTransition(cc.upperBodyLayer) &&
+                   !animator.IsInTransition(cc.fullbodyLayer);
         }
 
         #endregion
 
-        #region Update Animations        
+        #region Update Animations
 
         protected virtual void UpdateMeleeAnimations()
         {
@@ -303,19 +492,14 @@ namespace Invector.vCharacterController
 
         public virtual int AttackID
         {
-            get
-            {
-                return meleeManager ? meleeManager.GetAttackID() : 0;
-            }
+            get { return meleeManager ? meleeManager.GetAttackID() : 0; }
         }
 
         public virtual int DefenseID
         {
-            get
-            {
-                return meleeManager ? meleeManager.GetDefenseID() : 0;
-            }
+            get { return meleeManager ? meleeManager.GetDefenseID() : 0; }
         }
+
         #endregion
 
         #region Melee Methods
@@ -367,7 +551,8 @@ namespace Invector.vCharacterController
         public virtual void OnReceiveAttack(vDamage damage, vIMeleeFighter attacker)
         {
             // character is blocking
-            if (!damage.ignoreDefense && isBlocking && meleeManager != null && meleeManager.CanBlockAttack(damage.sender.position))
+            if (!damage.ignoreDefense && isBlocking && meleeManager != null &&
+                meleeManager.CanBlockAttack(damage.sender.position))
             {
                 var damageReduction = meleeManager.GetDefenseRate();
                 if (damageReduction > 0)
@@ -384,6 +569,7 @@ namespace Invector.vCharacterController
                 cc.currentStaminaRecoveryDelay = damage.staminaRecoveryDelay;
                 cc.currentStamina -= damage.staminaBlockCost;
             }
+
             // apply damage
             damage.hitReaction = !isBlocking || damage.ignoreDefense;
             cc.TakeDamage(damage);
@@ -395,7 +581,6 @@ namespace Invector.vCharacterController
         }
 
         #endregion
-
     }
 
     public static partial class vAnimatorParameters

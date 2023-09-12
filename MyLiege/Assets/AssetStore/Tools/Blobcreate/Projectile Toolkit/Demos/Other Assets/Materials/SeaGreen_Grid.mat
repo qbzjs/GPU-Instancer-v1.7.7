@@ -109,7 +109,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0.18149996, g: 0.54999995, b: 0.34118333, a: 1}
-    - _Color: {r: 0.1821428, g: 0.54999995, b: 0.34285712, a: 1}
+    - _Color: {r: 0.18149993, g: 0.5499999, b: 0.3411833, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_BuildTextureStacks: []
@@ -125,4 +125,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1
+  version: 5

@@ -11,7 +11,8 @@ namespace MyGame.Scripts.Building
             SIEGEVEHICLES,
             CAVLARY,
             LEGENDARY,
-            ALL
+            ALL,
+            GENERAL
         }
     }
 }
