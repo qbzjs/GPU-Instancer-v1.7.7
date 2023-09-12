@@ -202,6 +202,7 @@ namespace Invector.vCharacterController
             {
                 Debug.Log("Stopped moving this building, and reset the layer to building");
                 CBC.SetCurrentlyMoving(false);
+                CBC.SetAllowedNewPosition(false);
                 CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
                 CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
             }
@@ -213,6 +214,7 @@ namespace Invector.vCharacterController
 
         public void DeleteBuildingInput()
         {
+            Debug.Log("Hello, its me, i was wondering what the fuck is happpeningg");
             if (RemoveBuilding.GetButtonDown() && CBC.CurrentBuildingSelected != null && !CBC.GetCurrentlyMoving())
             {
                 CBC.DeleteBuilding();
@@ -233,14 +235,40 @@ namespace Invector.vCharacterController
                 CBC.PreviewBuildingPoint.SetActive(false);
                 CBC.SetCurrentlyMoving(false);
                 CBC.SetAllowedNewPosition(false);
+                if (CBC.CurrentBuildingSelected != null)
+                {
+                    CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
+                    CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                }
             }
-            else if (EditModeToggle.GetButtonDown() && CBC.GetEditMode() && CBC.GetAllowedNewPosition())
+            else if (EditModeToggle.GetButtonDown() && CBC.GetEditMode())
             {
-                Debug.Log("Disabling Edit Mode");
-                CBC.SetEditMode(false);
-                CBC.PreviewBuildingPoint.SetActive(true);
-                CBC.SetCurrentlyMoving(false);
-                CBC.SetAllowedNewPosition(false);
+                if (CBC.GetEditMode() && CBC.GetCurrentlyMoving() && CBC.GetAllowedNewPosition())
+                {
+                    Debug.Log("Disabling Edit Mode");
+                    CBC.SetEditMode(false);
+                    CBC.PreviewBuildingPoint.SetActive(true);
+                    CBC.SetCurrentlyMoving(false);
+                    CBC.SetAllowedNewPosition(false);
+                    if (CBC.CurrentBuildingSelected != null)
+                    {
+                        CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
+                        CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                    }
+                }
+                else if (CBC.GetEditMode() && !CBC.GetCurrentlyMoving() && !CBC.GetAllowedNewPosition())
+                {
+                    Debug.Log("Disabling Edit Mode");
+                    CBC.SetEditMode(false);
+                    CBC.PreviewBuildingPoint.SetActive(true);
+                    CBC.SetCurrentlyMoving(false);
+                    CBC.SetAllowedNewPosition(false);
+                    if (CBC.CurrentBuildingSelected != null)
+                    {
+                        CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
+                        CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                    }
+                }
             }
         }
 
@@ -256,19 +284,57 @@ namespace Invector.vCharacterController
                 if (CBC.CurrentBuildingSelected != null)
                 {
                     CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                    CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
                 }
             }
-            else if (BuildModeToggle.GetButtonDown() && CBC.GetBuildMode() && CBC.GetAllowedNewPosition())
+            else if (BuildModeToggle.GetButtonDown() && CBC.GetBuildMode())
             {
-                Debug.Log("Disabling Build Mode");
-                CBC.SetBuildMode(false);
-                //We also want to reset edit mode when we are not in build mode anymore.
-                CBC.SetEditMode(false);
-                CBC.PreviewBuildingPoint.SetActive(false);
-                //if we forgot to switch the layer back this does it for us
-                if (CBC.CurrentBuildingSelected != null)
+                if (CBC.GetEditMode() && CBC.GetCurrentlyMoving() && CBC.GetAllowedNewPosition())
                 {
-                    CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                    Debug.Log("Disabling Build Mode");
+                    CBC.SetBuildMode(false);
+                    //We also want to reset edit mode when we are not in build mode anymore.
+                    CBC.SetEditMode(false);
+                    CBC.PreviewBuildingPoint.SetActive(false);
+                    CBC.SetCurrentlyMoving(false);
+                    CBC.SetAllowedNewPosition(false);
+                    if (CBC.CurrentBuildingSelected != null)
+                    {
+                        CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                        CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
+                        CBC.CurrentBuildingSelected = null;
+                    }
+                }
+                else if (!CBC.GetEditMode() && !CBC.GetCurrentlyMoving() && !CBC.GetAllowedNewPosition())
+                {
+                    Debug.Log("Disabling Build Mode");
+                    CBC.SetBuildMode(false);
+                    //We also want to reset edit mode when we are not in build mode anymore.
+                    CBC.SetEditMode(false);
+                    CBC.PreviewBuildingPoint.SetActive(false);
+                    CBC.SetCurrentlyMoving(false);
+                    CBC.SetAllowedNewPosition(false);
+                    if (CBC.CurrentBuildingSelected != null)
+                    {
+                        CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                        CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
+                        CBC.CurrentBuildingSelected = null;
+                    }
+                } else if (CBC.GetEditMode() && !CBC.GetCurrentlyMoving() && !CBC.GetAllowedNewPosition())
+                {
+                    Debug.Log("Disabling Build Mode");
+                    CBC.SetBuildMode(false);
+                    //We also want to reset edit mode when we are not in build mode anymore.
+                    CBC.SetEditMode(false);
+                    CBC.PreviewBuildingPoint.SetActive(false);
+                    CBC.SetCurrentlyMoving(false);
+                    CBC.SetAllowedNewPosition(false);
+                    if (CBC.CurrentBuildingSelected != null)
+                    {
+                        CBC.CurrentBuildingSelected.gameObject.layer = LayerMask.NameToLayer("Building");
+                        CBC.CurrentBuildingSelected.GetComponent<BoxCollider>().enabled = true;
+                        CBC.CurrentBuildingSelected = null;
+                    }
                 }
             }
         }

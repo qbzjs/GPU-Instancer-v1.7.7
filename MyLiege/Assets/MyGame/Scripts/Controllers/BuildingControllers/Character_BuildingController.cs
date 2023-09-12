@@ -111,6 +111,7 @@ public class Character_BuildingController : MonoBehaviour
     {
         AllowNewPosition = newVal;
     }
+
     public bool GetRotateModeRight()
     {
         return RotatingRight;
@@ -213,7 +214,10 @@ public class Character_BuildingController : MonoBehaviour
                 ~IgnoreBuildCheckLayers))
         {
             //Move / rotate regardless of where it is.
-            CurrentBuildingSelected.transform.position = hit.point;
+            Vector3 spawnedPoint = hit.point + new Vector3(0f,
+                -CurrentBuildingToPlace.GetComponentInChildren<Transform>().Find("Groundingpoint").localPosition.y, 0f);
+
+            CurrentBuildingSelected.transform.position = spawnedPoint;
             CurrentBuildingSelected.transform.rotation = Quaternion.Euler(0f, SelectedCurrObjectYRotation, 0f);
 
             if ((ValidBuildingLayers & (1 << hit.collider.gameObject.layer)) != 0)
@@ -241,7 +245,10 @@ public class Character_BuildingController : MonoBehaviour
         {
             PreviewBuildingPoint.SetActive(true);
 
-            PreviewBuildingPoint.transform.position = hit.point;
+            Vector3 spawnedPoint = hit.point + new Vector3(0f,
+                -CurrentBuildingToPlace.GetComponentInChildren<Transform>().Find("Groundingpoint").localPosition.y, 0f);
+            
+            PreviewBuildingPoint.transform.position = spawnedPoint;
 
             PreviewBuildingPoint.GetComponent<MeshFilter>().mesh =
                 CurrentBuildingToPlace.GetComponent<MeshFilter>().sharedMesh;
@@ -279,8 +286,10 @@ public class Character_BuildingController : MonoBehaviour
         {
             if ((ValidBuildingLayers & (1 << hit.collider.gameObject.layer)) != 0)
             {
+                Vector3 spawnedPoint = hit.point + new Vector3(0f,
+                    -CurrentBuildingToPlace.GetComponentInChildren<Transform>().Find("Groundingpoint").localPosition.y, 0f);
                 GameObject newPlacedBuilding =
-                    Instantiate(CurrentBuildingToPlace, hit.point, Quaternion.Euler(0f, CurrRotation, 0f));
+                    Instantiate(CurrentBuildingToPlace, spawnedPoint, Quaternion.Euler(0f, CurrRotation, 0f));
                 Debug.Log("Placing down building");
             }
             else
@@ -301,6 +310,8 @@ public class Character_BuildingController : MonoBehaviour
             return;
         }
 
+        SetCurrentlyMoving(false);
+        SetAllowedNewPosition(false);
         Destroy(CurrentBuildingSelected);
         Debug.Log("Currently Destroying the selected Building");
     }
