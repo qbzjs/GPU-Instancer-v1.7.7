@@ -42,6 +42,7 @@ public class Character_BuildingController : MonoBehaviour
     [SerializeField] public BuildingUIInformation _buildingUIInformation;
     [SerializeField] public int CurrentBuildingListIndex = 0;
     [SerializeField] public BuildingGameManager BGM;
+    [SerializeField] public GoldAccount GA;
 
     [Header("Rotation Settings")] [SerializeField]
     private float RotationSpeed = 50f;
@@ -72,6 +73,17 @@ public class Character_BuildingController : MonoBehaviour
     }
 
     #region Bool Getters And Setters
+
+    public float GetMaxDistanceOfBuildingSelectRaycast()
+    {
+        return MaxDistanceCheck;
+    }
+
+    public void SetMaxDistanceOfBuildingSelectRaycast(float newVal)
+    {
+        MaxDistanceCheck = newVal;
+    }
+
 
     public bool GetEditMode()
     {
@@ -184,11 +196,12 @@ public class Character_BuildingController : MonoBehaviour
         {
             if ((BuildingLayer & (1 << hit.collider.gameObject.layer)) != 0)
             {
+                Building CurrentlySelectedBuildingInfo = hit.collider.gameObject.GetComponent<Building>();
                 Debug.Log("Building Successfully Selected");
                 CurrentBuildingSelected = hit.collider.GetComponent<Collider>().gameObject;
                 SelectedCurrObjectYRotation = CurrentBuildingSelected.transform.rotation.y;
                 _buildingUIInformation.ChangeCurrentSelectedBuilding("Current Selected Building: " +
-                                                                     CurrentBuildingSelected.gameObject.name);
+                                                                     CurrentlySelectedBuildingInfo.GetBuildingName());
             }
             else
             {
@@ -273,6 +286,10 @@ public class Character_BuildingController : MonoBehaviour
                 //Update the material to be the invalid build material;
                 PreviewBuildingPoint.GetComponent<MeshRenderer>().material = InvalidBuildLocationMaterial;
             }
+
+            _buildingUIInformation.ChangeCurrentBuildingToPlace("Current Building To Place: " +
+                                                                CurrentBuildingToPlace.gameObject
+                                                                    .GetComponent<Building>().GetBuildingName());
         }
         else
         {
@@ -286,33 +303,45 @@ public class Character_BuildingController : MonoBehaviour
     /// </summary>
     public void PlaceDownBuilding()
     {
-        RaycastHit hit;
-
-        if (Physics.Raycast(Camera.main.transform.position + BuildingRayCenterOffset, Camera.main.transform.forward,
-                out hit, MaxDistanceCheck, ~IgnoreBuildCheckLayers))
+        Building CurrentBuildingToPlaceInfo = CurrentBuildingToPlace.GetComponent<Building>();
+        if (GA.WithdrawlGold(CurrentBuildingToPlaceInfo.GetCostOfBuilding()))
         {
-            if ((ValidBuildingLayers & (1 << hit.collider.gameObject.layer)) != 0)
+            RaycastHit hit;
+
+            if (Physics.Raycast(Camera.main.transform.position + BuildingRayCenterOffset, Camera.main.transform.forward,
+                    out hit, MaxDistanceCheck, ~IgnoreBuildCheckLayers))
             {
-                Vector3 spawnedPoint = hit.point + new Vector3(0f,
-                    -CurrentBuildingToPlace.GetComponentInChildren<Transform>().Find("Groundingpoint").localPosition.y,
-                    0f);
-                GameObject newPlacedBuilding =
-                    Instantiate(CurrentBuildingToPlace, spawnedPoint, Quaternion.Euler(0f, CurrRotation, 0f));
-                Debug.Log("Placing down building");
+                if ((ValidBuildingLayers & (1 << hit.collider.gameObject.layer)) != 0)
+                {
+                    Vector3 spawnedPoint = hit.point + new Vector3(0f,
+                        -CurrentBuildingToPlace.GetComponentInChildren<Transform>().Find("Groundingpoint").localPosition
+                            .y,
+                        0f);
+                    GameObject newPlacedBuilding =
+                        Instantiate(CurrentBuildingToPlace, spawnedPoint, Quaternion.Euler(0f, CurrRotation, 0f));
+                    Debug.Log("Placing down building");
+                }
+                else
+                {
+                    Debug.Log("This is not a valid layer for placement.");
+                }
             }
             else
             {
-                Debug.Log("This is not a valid layer for placement.");
+                Debug.Log("Outside of range or no object hit");
             }
         }
         else
         {
-            Debug.Log("Outside of range or no object hit");
+            Debug.Log("The withdraw is not allowed.");
         }
     }
 
+    //This should deposit back the money of the cost of the building for now. 
     public void DeleteBuilding()
     {
+        Building CurrentBuildingToPlaceInfo = CurrentBuildingSelected.GetComponent<Building>();
+
         if (!EditMode && !BuildMode && CurrentBuildingSelected == null && !CurrentlyMoving)
         {
             return;
@@ -320,6 +349,7 @@ public class Character_BuildingController : MonoBehaviour
 
         SetCurrentlyMoving(false);
         SetAllowedNewPosition(false);
+        GA.DepositGold(CurrentBuildingToPlaceInfo.GetCostOfBuilding());
         Destroy(CurrentBuildingSelected);
         Debug.Log("Currently Destroying the selected Building");
     }
@@ -351,8 +381,8 @@ public class Character_BuildingController : MonoBehaviour
     }
 
 
-    //Check to be sure we have enough coins to place this current building, also check to make sure we dont have overlapping buildings before we place.
-    public void CheckIfValidConditions()
+    //This is the check to make sure that buildings keep a certain distance from eachother and cannot overlap.
+    public void CheckIfBuildingOverlapsAnother()
     {
     }
 }

@@ -497,12 +497,15 @@ namespace Invector.vCharacterController
                 isFirstPerson = false;
                 Debug.Log("Changing the camera to top down");
                 ChangeCameraState("Soldier_TopDown", false);
+                CBC.SetMaxDistanceOfBuildingSelectRaycast(50f);
             }
             else
             {
                 Debug.Log("changing the camera to first person");
                 ChangeCameraState("Soldier_FirstPerson", false);
                 isFirstPerson = true;
+                CBC.SetMaxDistanceOfBuildingSelectRaycast(15f);
+
             }
         }
 

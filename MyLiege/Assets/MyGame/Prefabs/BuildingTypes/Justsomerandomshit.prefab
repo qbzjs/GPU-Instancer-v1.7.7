@@ -317,7 +317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f84a626c33f6fa4abbd1e5af41acab0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BuildingName: Default Name
+  BuildingName: Black Fury
   BuildingDescription: This is a default description....Fill it in.
   currBuildingsType: 0
   CostOfBuilding: 150

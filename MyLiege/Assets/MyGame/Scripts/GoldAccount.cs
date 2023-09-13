@@ -5,55 +5,77 @@ using UnityEngine;
 
 public class GoldAccount : MonoBehaviour
 {
-    //Variables
-    [Header("Gold Information")]
-    [SerializeField] private float Gold = 250f;
-    
-    //Banking Events
-    
-    
-    //eventually i believe this gold should be split up into a interface, and added onto each character since it will allow me to make an ai and then use this on the ai controller.
+    [Header("Gold General Setting")] [SerializeField]
+    private float GoldAmountInAccount;
 
+    [SerializeField] private float MaxGoldAbleToStore;
 
-    public void DepositGold(float valueToDeposit)
+    public void SetMaxGoldAbleToStore(float newVal)
     {
-        Gold += valueToDeposit;
+        MaxGoldAbleToStore = newVal;
     }
 
-    public void WithdrawlGold(float valueToWithdrawl)
+    public float GetMaxGoldAbleToStore()
     {
-        Gold -= valueToWithdrawl;
+        return MaxGoldAbleToStore;
     }
 
-    public void ResetGoldToZero()
+
+    public float GetGoldAmountInAccount()
     {
-        Gold = 0f;
+        return GoldAmountInAccount;
     }
 
-    public void SetGoldValue(float newGoldValue)
+    public void SetGoldAmountInAccount(float newVal)
     {
-        Gold = newGoldValue;
-    }
-    
-    public bool IsBankEmpty()
-    {
-        return (Gold <= 0);
+        GoldAmountInAccount = newVal;
     }
 
-    public bool IsPurchaseValid(float purchaseCost)
+    public void DepositGold(float depositAmount)
     {
-        return ((Gold - purchaseCost) >= 0);
-    }
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
+        if (CheckIfGoldExceedsMaximum(depositAmount))
+        {
+            GoldAmountInAccount += depositAmount;
+        }
+        else
+        {
+            GoldAmountInAccount = MaxGoldAbleToStore;
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+
+    public bool WithdrawlGold(float withdrawAmount)
     {
-        
+        if (CheckIfBalanceValidBeforePurchase(withdrawAmount))
+        {
+            GoldAmountInAccount -= withdrawAmount;
+            return true;
+        }
+        else
+        {
+            //Technically it would be not a valid purchase.
+            Debug.Log("Cannot withdraw more then the gold account has to offer.");
+            return false;
+        }
+    }
+
+    public bool CheckIfGoldExceedsMaximum(float goldAmountBeingAdded)
+    {
+        if (GoldAmountInAccount + goldAmountBeingAdded > MaxGoldAbleToStore)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool CheckIfBalanceValidBeforePurchase(float costOfProduct)
+    {
+        if (GoldAmountInAccount - costOfProduct <= 0)
+        {
+            return false;
+        }
+
+        return true;
     }
 }
